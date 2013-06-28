@@ -3,43 +3,44 @@ package no.finntech.kata;
 
 public class BowlingGame {
 
-    int frameScore = 0;
-    int score = 0;
-    int previousRoll = 0;
+
+    int[][] frames = new int[12][2];
     boolean firstRoll = true;
-
-    private boolean spare = false;
-
+    int frameIndex = 0;
 
     public void roll(int pins) {
-        frameScore += pins;
-        score += pins;
-
-        if(firstRoll && spare) {
-            score = score + 10 + pins;
-            spare = false;
-        }
-
-        if(!firstRoll && frameScore == 10) {
-            spare = true;
-            score -= 10;
-        }
-
-        if (firstRoll && frameScore == 10) {
-            score -= 10;
-        }
-
-        if(firstRoll) {
+        frames[frameIndex][firstRoll ? 0 : 1] = pins;
+        if(firstRoll && pins != 10) {
             firstRoll = false;
         } else {
-            frameScore = 0;
             firstRoll = true;
+            frameIndex++;
         }
-
-        previousRoll = pins;
     }
 
     public int score() {
+        int score = 0;
+        for(int i = 0; i < 10; i++) {
+            if(strike(i)) {
+                if (strike(i + 1)) {
+                    score += 10 + 10 + frames[i+2][0];
+                } else {
+                    score += 10 + frames[i+1][0] + frames[i+1][1];
+                }
+            } else if(spare(i)) {
+                score += 10 + frames[i+1][0];
+            } else {
+                score += frames[i][0] + frames[i][1];
+            }
+        }
         return score;
+    }
+
+    private boolean spare(int i) {
+        return frames[i][0] + frames[i][1] == 10;
+    }
+
+    private boolean strike(int i) {
+        return frames[i][0] == 10;
     }
 }
